@@ -10,7 +10,7 @@ nibabel==5.1.0
 nilearn==0.10.1
 
 
-pandas==2.0.3
+pandas==2.1.0
 
 Pillow==9.4.0
 pip==23.1.2
