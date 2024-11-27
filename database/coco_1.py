@@ -1,6 +1,6 @@
 import torchvision
 import torchvision.transforms as transforms
-from torch.utils.data import Dataset,DataLoader
+from torch.utils.data import Dataset, DataLoader
 import torch
 from skimage import io
 import numpy as np
@@ -8,16 +8,12 @@ from PIL import Image
 import os
 from stimupy.noises.whites import white
 from stimupy.noises.naturals import one_over_f
-from typing import Callable 
+from typing import Callable
 import random
 from torchvision.transforms import functional as F
- 
-
-from paths import DS_DIR
 
 
-
-def noise_generator(noise_type,visual_size,intensity_range,exponent = 1):
+def noise_generator(noise_type, visual_size, intensity_range, exponent=1):
     if noise_type == "white":
         noise = white(
             visual_size=visual_size,
@@ -26,7 +22,7 @@ def noise_generator(noise_type,visual_size,intensity_range,exponent = 1):
             intensity_range=intensity_range,
             pseudo_noise=False,
         )["img"]
-        
+
     elif noise_type == "one_over_f":
         noise = one_over_f(
             visual_size=visual_size,
@@ -37,82 +33,95 @@ def noise_generator(noise_type,visual_size,intensity_range,exponent = 1):
             pseudo_noise=False,
         )["img"]
 
-    elif noise_type == 'None':
+    elif noise_type == "None":
 
         noise = np.zeros(visual_size)
     else:
         raise ValueError("Unsupported noise type")
 
     return torch.from_numpy(noise).unsqueeze(0).float()
-    
 
-def add_noise(tensor: torch.Tensor,noise_type: str,intensity_range: tuple, contrast: float,) -> torch.Tensor:
-        
-        noise = noise_generator(noise_type=noise_type,visual_size=tensor.shape[1:],intensity_range=intensity_range)
 
-        imagenet_mean=0.449
+def add_noise(
+    tensor: torch.Tensor,
+    noise_type: str,
+    intensity_range: tuple,
+    contrast: float,
+) -> torch.Tensor:
 
-        tensor = (tensor - tensor.mean()) * contrast + imagenet_mean
+    noise = noise_generator(
+        noise_type=noise_type,
+        visual_size=tensor.shape[1:],
+        intensity_range=intensity_range,
+    )
 
-        tensor = tensor + noise
+    imagenet_mean = 0.449
 
-        tensor = ((tensor -  tensor.min()) / (tensor.max() - tensor.min()))
+    tensor = (tensor - tensor.mean()) * contrast + imagenet_mean
 
-        tensor = torch.cat([tensor,tensor,tensor])
+    tensor = tensor + noise
 
-        return tensor
+    tensor = (tensor - tensor.min()) / (tensor.max() - tensor.min())
+
+    tensor = torch.cat([tensor, tensor, tensor])
+
+    return tensor
 
 
 def create_transform(noise_type, intensity_range, contrast):
 
-  
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-        ),
-        transforms.Resize(256,antialias=True),
-        transforms.CenterCrop(224),
-        transforms.Grayscale(),
-        #ApplyNoiseTransform(noise_type, intensity_range),
-        transforms.Lambda(lambda x: apply_noise(x, noise_type, intensity_range,contrast)),
-        #transforms.Lambda(apply_noise_wrapper),
-    ])
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Resize(256, antialias=True),
+            transforms.CenterCrop(224),
+            transforms.Grayscale(),
+            # ApplyNoiseTransform(noise_type, intensity_range),
+            transforms.Lambda(
+                lambda x: apply_noise(x, noise_type, intensity_range, contrast)
+            ),
+            # transforms.Lambda(apply_noise_wrapper),
+        ]
+    )
     return transform
+
 
 def create_transform_gratings(noise_type, intensity_range, contrast):
 
-  
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-        ),
-        transforms.Resize(256,antialias=True),
-        transforms.CenterCrop(227),
-        transforms.Grayscale(),
-        #ApplyNoiseTransform(noise_type, intensity_range),
-        transforms.Lambda(lambda x: apply_noise(x, noise_type, intensity_range,contrast)),
-        #transforms.Lambda(apply_noise_wrapper),
-    ])
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Resize(256, antialias=True),
+            transforms.CenterCrop(227),
+            transforms.Grayscale(),
+            # ApplyNoiseTransform(noise_type, intensity_range),
+            transforms.Lambda(
+                lambda x: apply_noise(x, noise_type, intensity_range, contrast)
+            ),
+            # transforms.Lambda(apply_noise_wrapper),
+        ]
+    )
     return transform
 
-def create_transform_tensor(noise_type, intensity_range,contrast):
 
-  
-    transform = transforms.Compose([
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-        ),
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.Grayscale(),
-        #ApplyNoiseTransform(noise_type, intensity_range),
-        transforms.Lambda(lambda x: apply_noise(x, noise_type, intensity_range,contrast)),
-        #transforms.Lambda(apply_noise_wrapper),
-    ])
+def create_transform_tensor(noise_type, intensity_range, contrast):
+
+    transform = transforms.Compose(
+        [
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.Grayscale(),
+            # ApplyNoiseTransform(noise_type, intensity_range),
+            transforms.Lambda(
+                lambda x: apply_noise(x, noise_type, intensity_range, contrast)
+            ),
+            # transforms.Lambda(apply_noise_wrapper),
+        ]
+    )
     return transform
-
 
 
 def create_circular_mask(h, w, radius=None):
@@ -121,30 +130,38 @@ def create_circular_mask(h, w, radius=None):
         radius = min(center[0], center[1], w - center[0], h - center[1])
 
     Y, X = np.ogrid[:h, :w]
-    dist_from_center = np.sqrt((X - center[0])**2 + (Y - center[1])**2)
+    dist_from_center = np.sqrt((X - center[0]) ** 2 + (Y - center[1]) ** 2)
     mask = dist_from_center <= radius
     return mask
+
 
 def apply_aperature(tensor: torch.Tensor, type: str, radius: int) -> torch.Tensor:
     _, h, w = tensor.shape
 
-    if type == 'circular_gaussian':
+    if type == "circular_gaussian":
         mask = create_circular_mask(h, w, radius)
         grey_background = 0.5
         background_color = grey_background
         center = (w // 2, h // 2)
         Y, X = np.ogrid[:h, :w]
-        dist_from_center = torch.tensor(np.sqrt((X - center[0])**2 + (Y - center[1])**2), dtype=torch.float32)
+        dist_from_center = torch.tensor(
+            np.sqrt((X - center[0]) ** 2 + (Y - center[1]) ** 2), dtype=torch.float32
+        )
         sigma_gaussian = 50
-        gaussian_aperture = (1 - torch.exp(-((dist_from_center / sigma_gaussian) ** 2) / 2))
+        gaussian_aperture = 1 - torch.exp(
+            -((dist_from_center / sigma_gaussian) ** 2) / 2
+        )
 
         tensor = tensor.clone().detach()
 
         for channel in range(3):
             tensor[channel][~mask] = background_color
-            tensor[channel][mask] = tensor[channel][mask] * (1 - gaussian_aperture[mask]) + background_color * gaussian_aperture[mask]
-        
-        #tensor = (tensor - tensor.min()) / (tensor.max() - tensor.min())
+            tensor[channel][mask] = (
+                tensor[channel][mask] * (1 - gaussian_aperture[mask])
+                + background_color * gaussian_aperture[mask]
+            )
+
+        # tensor = (tensor - tensor.min()) / (tensor.max() - tensor.min())
 
     return tensor
 
@@ -153,7 +170,7 @@ def zoom_in(tensor: torch.Tensor, zoom_factor: int, center=None):
     """
     Zooms into an image at the specified center and zoom factor.
     """
-    _,width, height = tensor.shape
+    _, width, height = tensor.shape
     if center is None:
         center = (width // 2, height // 2)
 
@@ -161,28 +178,42 @@ def zoom_in(tensor: torch.Tensor, zoom_factor: int, center=None):
     new_width = width // zoom_factor
     new_height = height // zoom_factor
 
-    
     left = center[0] - new_width // 2
     top = center[1] - new_height // 2
     right = center[0] + new_width // 2
     bottom = center[1] + new_height // 2
 
-    
     tensor = F.crop(tensor, top, left, new_height, new_width)
     tensor = F.resize(tensor, (height, width))
     return tensor
 
-def place_on_background(tensor: torch.Tensor, bg_size: tuple, position: tuple) -> torch.Tensor:
-    background = torch.full((3, *bg_size), 0.5) 
+
+def place_on_background(
+    tensor: torch.Tensor, bg_size: tuple, position: tuple
+) -> torch.Tensor:
+    background = torch.full((3, *bg_size), 0.5)
     x, y = position
     _, h, w = tensor.shape
-    background[:, y:y+h, x:x+w] = tensor
+    background[:, y : y + h, x : x + w] = tensor
     return background
 
-def create_transform_aperature(noise_type, intensity_range, type, radius, bg_size, position, zoom_factor,contrast, rotation=None, horizontal_flip=False, vertical_flip=False):
+
+def create_transform_aperature(
+    noise_type,
+    intensity_range,
+    type,
+    radius,
+    bg_size,
+    position,
+    zoom_factor,
+    contrast,
+    rotation=None,
+    horizontal_flip=False,
+    vertical_flip=False,
+):
 
     def apply_noise_wrapper(x):
-        return apply_noise(x, noise_type, intensity_range,contrast)
+        return apply_noise(x, noise_type, intensity_range, contrast)
 
     def deterministic_rotate(angle):
         return transforms.Lambda(lambda img: F.rotate(img, angle))
@@ -198,10 +229,10 @@ def create_transform_aperature(noise_type, intensity_range, type, radius, bg_siz
 
     transform_list = [
         transforms.ToTensor(),
-        transforms.Resize(256,antialias=True),
+        transforms.Resize(256, antialias=True),
         transforms.CenterCrop(224),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        transforms.Grayscale()
+        transforms.Grayscale(),
     ]
     if horizontal_flip:
         transform_list.append(transforms.RandomHorizontalFlip())
@@ -209,34 +240,37 @@ def create_transform_aperature(noise_type, intensity_range, type, radius, bg_siz
         transform_list.append(transforms.RandomVerticalFlip())
     if rotation is not None:
         transform_list.append(deterministic_rotate(rotation))
-        #transform_list.append(transforms.Rotate(degrees=rotation))
+        # transform_list.append(transforms.Rotate(degrees=rotation))
 
-    transform_list.extend([
-        transforms.Lambda(apply_noise_wrapper),
-        transforms.Lambda(zoom_in_wrapper),
-        transforms.Lambda(apply_aperature_wrapper),
-        transforms.Lambda(place_on_background_wrapper),
-        transforms.Resize((224, 224))
-    ])
+    transform_list.extend(
+        [
+            transforms.Lambda(apply_noise_wrapper),
+            transforms.Lambda(zoom_in_wrapper),
+            transforms.Lambda(apply_aperature_wrapper),
+            transforms.Lambda(place_on_background_wrapper),
+            transforms.Resize((224, 224)),
+        ]
+    )
 
     return transforms.Compose(transform_list)
 
+
 def generate_test_transforms(config):
-    
+
     transform = create_transform_aperature(
-        noise_type=config.get('noise_type'),
-        contrast = config.get('contrast'),
-        intensity_range=config.get('intensity_range'),
-        type=config.get('type'),
-        radius=config.get('radius'),
-        bg_size=config.get('bg_size'),
-        position=config.get('position'),
-        zoom_factor=config.get('zoom_factor'),
-        rotation=config.get('rotation'),
-        horizontal_flip=config.get('horizontal_flip'),
-        vertical_flip=config.get('vertical_flip')
+        noise_type=config.get("noise_type"),
+        contrast=config.get("contrast"),
+        intensity_range=config.get("intensity_range"),
+        type=config.get("type"),
+        radius=config.get("radius"),
+        bg_size=config.get("bg_size"),
+        position=config.get("position"),
+        zoom_factor=config.get("zoom_factor"),
+        rotation=config.get("rotation"),
+        horizontal_flip=config.get("horizontal_flip"),
+        vertical_flip=config.get("vertical_flip"),
     )
-    
+
     return transform
 
 
@@ -251,39 +285,41 @@ class NSD(Dataset):
         self.file_list = os.listdir(data_dir)
         self.num_images = len(self.file_list)
         self.transforms = transforms
-             
+
     def __len__(self):
         return self.num_images
 
     def create_label(self, filename):
         label = int("".join(filter(str.isdigit, filename)))
         return label
-    
+
     def apply_transform(self, img):
-        if self.transforms and img.mode == 'RGB':
+        if self.transforms and img.mode == "RGB":
             return self.transforms(img)
         return img
 
-    def load_images(self,file_name):
-        img = Image.open(os.path.join(self.data_dir, file_name)).convert('RGB') 
+    def load_images(self, file_name):
+        img = Image.open(os.path.join(self.data_dir, file_name)).convert("RGB")
         return img
 
     def __getitem__(self, idx):
 
         if torch.is_tensor(idx):
             idx = idx.tolist()
-        
+
         reference_filename = self.file_list[idx]
 
         reference_image = self.load_images(reference_filename)
-        
+
         label = self.create_label(reference_filename)
 
         img1 = self.apply_transform(reference_image)
-        
+
         label2 = label
-       
+
         return img1, label2
+
+
 """
 class COCO(Dataset):
     def __init__(self, data_dir, transforms=None,same_pair_probability=0.5,same_reference=False, same_not_rand=False, ref_state = 100, ref_other = 50, idx_ref=None, idx_other=None):
@@ -399,8 +435,21 @@ class COCO(Dataset):
 
 """
 
+
 class COCO(Dataset):
-    def __init__(self, data_dir, num_scrambled=None, transforms=None, same_pair_probability=0.5,same_reference=False, same_not_rand=False, ref_state = 100, ref_other = 50, idx_ref=None, idx_other=None):
+    def __init__(
+        self,
+        data_dir,
+        num_scrambled=None,
+        transforms=None,
+        same_pair_probability=0.5,
+        same_reference=False,
+        same_not_rand=False,
+        ref_state=100,
+        ref_other=50,
+        idx_ref=None,
+        idx_other=None,
+    ):
         self.data_dir = data_dir
         self.file_list = os.listdir(data_dir)
         self.num_images = len(self.file_list)
@@ -416,9 +465,9 @@ class COCO(Dataset):
     def create_label(self, filename):
         label = int("".join(filter(str.isdigit, filename)))
         return label
-    
+
     def apply_transform(self, img):
-        if self.transforms and img.mode == 'RGB':
+        if self.transforms and img.mode == "RGB":
             return self.transforms(img)
         return img
 
@@ -437,22 +486,22 @@ class COCO(Dataset):
 
         other_filename = self.file_list[self.idx_other]
 
-        return image_filename,other_filename
-    
+        return image_filename, other_filename
+
     def same_different_task(self, idx):
         image_filename = self.file_list[idx]
         random_idx = random.choice([i for i in range(self.num_images) if i != idx])
         random_filename = self.file_list[random_idx]
         return image_filename, random_filename
-    
+
     def load_images(self, file_name):
-        with open(os.path.join(self.data_dir, file_name), 'rb') as f:
-            img = Image.open(f).convert('RGB')
+        with open(os.path.join(self.data_dir, file_name), "rb") as f:
+            img = Image.open(f).convert("RGB")
         return img
 
     def get_image_pair(self):
         choice = random.randint(0, 3)
-        
+
         if choice == 0:  # ref-ref
             reference_filename, _ = self.same_different_not_rand()
             other_filename = reference_filename
@@ -467,7 +516,7 @@ class COCO(Dataset):
             _, other_filename = self.same_different_not_rand()
             reference_filename = other_filename
             self.same_pair = True
-        
+
         return reference_filename, other_filename
 
     def __getitem__(self, idx):
@@ -478,16 +527,28 @@ class COCO(Dataset):
 
         reference_image = self.load_images(reference_filename)
         other_image = self.load_images(other_filename)
-        
+
         label1 = self.create_label(reference_filename)
         label2 = self.create_label(other_filename)
 
         img1 = self.apply_transform(reference_image)
         img2 = self.apply_transform(other_image)
 
-        return img1, img2, label1, label2,self.same_pair
+        return img1, img2, label1, label2, self.same_pair
 
-def get_data_loaders(data_dir, transform, batch_size=128, same_pair_probability=0.5, same_reference = False, same_not_rand = False, ref_state = 100, ref_other = 50, idx_ref=None, idx_other=None):
+
+def get_data_loaders(
+    data_dir,
+    transform,
+    batch_size=128,
+    same_pair_probability=0.5,
+    same_reference=False,
+    same_not_rand=False,
+    ref_state=100,
+    ref_other=50,
+    idx_ref=None,
+    idx_other=None,
+):
 
     data_dir = data_dir
 
@@ -498,27 +559,69 @@ def get_data_loaders(data_dir, transform, batch_size=128, same_pair_probability=
     else:
         shuffle = True
 
-    train_dir = os.path.join(data_dir, 'shared1000')
+    train_dir = os.path.join(data_dir, "shared1000")
 
-    val_dir = os.path.join(data_dir, 'shared1000')
+    val_dir = os.path.join(data_dir, "shared1000")
 
-    train_dataset = COCO(train_dir, transforms=transform,same_pair_probability=same_pair_probability,same_reference=same_reference, same_not_rand=same_not_rand, ref_state = ref_state,ref_other=ref_other, idx_ref=idx_ref, idx_other=idx_other)
+    train_dataset = COCO(
+        train_dir,
+        transforms=transform,
+        same_pair_probability=same_pair_probability,
+        same_reference=same_reference,
+        same_not_rand=same_not_rand,
+        ref_state=ref_state,
+        ref_other=ref_other,
+        idx_ref=idx_ref,
+        idx_other=idx_other,
+    )
 
-    test_dataset = COCO(val_dir, transforms=transform,same_pair_probability=same_pair_probability,same_reference=same_reference, same_not_rand=same_not_rand, ref_state = ref_state,ref_other=ref_other, idx_ref=idx_ref, idx_other=idx_other)
+    test_dataset = COCO(
+        val_dir,
+        transforms=transform,
+        same_pair_probability=same_pair_probability,
+        same_reference=same_reference,
+        same_not_rand=same_not_rand,
+        ref_state=ref_state,
+        ref_other=ref_other,
+        idx_ref=idx_ref,
+        idx_other=idx_other,
+    )
 
     batch_size_train = batch_size
 
     batch_size_test = batch_size
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size_train, shuffle=shuffle,drop_last=True,num_workers=0)
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=batch_size_train,
+        shuffle=shuffle,
+        drop_last=True,
+        num_workers=0,
+    )
 
-    test_loader = DataLoader(test_dataset, batch_size=batch_size_test, shuffle=shuffle,drop_last=True,num_workers=4) # change to 8
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=batch_size_test,
+        shuffle=shuffle,
+        drop_last=True,
+        num_workers=4,
+    )  # change to 8
 
     return train_loader, test_loader
 
 
 class COCO_RNN(Dataset):
-    def __init__(self, data_dir, transforms=None, same_pair_probability=0.5, same_not_rand=False, idx_ref=None, idx_other=None, time_steps=2, num_scrambled=1):
+    def __init__(
+        self,
+        data_dir,
+        transforms=None,
+        same_pair_probability=0.5,
+        same_not_rand=False,
+        idx_ref=None,
+        idx_other=None,
+        time_steps=2,
+        num_scrambled=1,
+    ):
         self.data_dir = data_dir
         self.file_list = os.listdir(data_dir)
         self.num_images = len(self.file_list)
@@ -529,37 +632,47 @@ class COCO_RNN(Dataset):
         self.idx_ref = idx_ref
         self.idx_other = idx_other
         self.num_scrambled = num_scrambled
+
     def __len__(self):
         return self.num_images
+
     def create_label(self, filename):
         label = int("".join(filter(str.isdigit, filename)))
         return label
+
     def _same_different(self):
         self.same_pair = random.random() < self.same_pair_probability
+
     def apply_transform(self, img):
         if self.transforms:
             return self.transforms(img)
         return img
+
     def get_normal_transformation(self):
-        transformation = create_transform('None', (0, 1), 1)
+        transformation = create_transform("None", (0, 1), 1)
         return transformation
+
     def generate_gray_image(self, size=(224, 224)):
         gray_tensor = torch.full((3, size[0], size[1]), 0.5)
         return gray_tensor
+
     def apply_gray_background(self, tensor, background_color=0.5):
         if not isinstance(tensor, torch.Tensor):
             tensor = torch.tensor(tensor)
         for channel in range(tensor.shape[0]):
             tensor[channel] = background_color
         return tensor
+
     def same_different_not_rand(self):
         image_filename = self.file_list[self.idx_ref]
         other_filename = self.file_list[self.idx_other]
         return image_filename, other_filename
+
     def load_images(self, file_name):
-        with open(os.path.join(self.data_dir, file_name), 'rb') as f:
-            img = Image.open(f).convert('RGB')
+        with open(os.path.join(self.data_dir, file_name), "rb") as f:
+            img = Image.open(f).convert("RGB")
         return img
+
     def get_image_pair(self):
         choice = random.randint(0, 3)
         if choice == 0:
@@ -577,6 +690,7 @@ class COCO_RNN(Dataset):
             reference_filename = other_filename
             self.same_pair = True
         return reference_filename, other_filename
+
     def __getitem__(self, idx):
         self._same_different()
         transformation = self.get_normal_transformation()
@@ -587,12 +701,12 @@ class COCO_RNN(Dataset):
         other_image = self.load_images(other_filename)
         label = self.create_label(reference_filename)
         label2 = self.create_label(other_filename)
-        #if self.same_pair:
-            #img1 = self.apply_transform(reference_image)
-            #img2 = self.apply_transform(reference_image)
-            #label1 = label
-            #label2 = label
-        #else:
+        # if self.same_pair:
+        # img1 = self.apply_transform(reference_image)
+        # img2 = self.apply_transform(reference_image)
+        # label1 = label
+        # label2 = label
+        # else:
         img1 = self.apply_transform(reference_image)
         img2 = self.apply_transform(other_image)
         label1 = label

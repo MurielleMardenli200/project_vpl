@@ -18,7 +18,6 @@ from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
 import wandb
 from database.coco_1 import generate_test_transforms, COCO_RNN
-from torchvision.models.resnet import resnet50
 
 # Wandb login
 
