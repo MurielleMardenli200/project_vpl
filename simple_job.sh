@@ -4,4 +4,5 @@
 #SBATCH --mem-per-cpu=1024M      # memory; default unit is megabytes
 #SBATCH --time=0-00:05           # time (DD-HH:MM)
 #SBATCH --mail-user=murielle.mardenli@gmail.com
+#SBATCH --mail-type=ALL
 python hyperparameter_sweep.py
