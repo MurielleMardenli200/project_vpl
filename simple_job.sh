@@ -5,4 +5,7 @@
 #SBATCH --time=0-00:05           # time (DD-HH:MM)
 #SBATCH --mail-user=murielle.mardenli@gmail.com
 #SBATCH --mail-type=ALL
+#SBATCH --output=output.log
+#SBATCH --error=error.log
+
 python hyperparameter_sweep.py
