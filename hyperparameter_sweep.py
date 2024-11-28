@@ -29,7 +29,7 @@ def train(config):
     train_task_config = configs_tasks[0]
     IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN = generate_test_transforms(train_task_config)
     train_dataset = COCO_RNN(
-        "/Users/muriellemardenli/Desktop/mainn/ResearchProjects/SNAIL/shared1000/",
+        "shared1000/",
         transforms=IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN,
         same_pair_probability=0.5,
         same_not_rand=True,
