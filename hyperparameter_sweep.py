@@ -10,9 +10,6 @@ import numpy as np
 
 import matplotlib
 
-# Force to not use a GUI for plots
-matplotlib.use("Agg")
-
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
