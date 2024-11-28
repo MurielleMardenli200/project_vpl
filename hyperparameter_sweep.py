@@ -97,24 +97,24 @@ def train(config=None):
 
                 wandb.log({"batch_loss": loss.item()})
 
-                plt.figure(figsize=(10, 6))
-                for i in range(sequences.shape[0]):
-                    plt.plot(
-                        seq[:, i].detach().cpu().numpy(),
-                        label=f"batch index {i}",
-                        marker="o",
-                    )
-                plt.legend()
+                # plt.figure(figsize=(10, 6))
+                # for i in range(sequences.shape[0]):
+                #     plt.plot(
+                #         seq[:, i].detach().cpu().numpy(),
+                #         label=f"batch index {i}",
+                #         marker="o",
+                #     )
+                # plt.legend()
 
-                plt.title(
-                    f"Epoch {epoch + 1}, Batch {batch_idx + 1}, Iteration {total_iterations}"
-                )
-                plt.ylabel("RNN output")
-                plt.xlabel("Sequences")
-                plt.savefig("temp_plot.png")
-                plt.grid(True)
-                plt.close()
-                print(f"output for iteration {total_iterations}")
+                # plt.title(
+                #     f"Epoch {epoch + 1}, Batch {batch_idx + 1}, Iteration {total_iterations}"
+                # )
+                # plt.ylabel("RNN output")
+                # plt.xlabel("Sequences")
+                # plt.savefig("temp_plot.png")
+                # plt.grid(True)
+                # plt.close()
+                # print(f"output for iteration {total_iterations}")
 
                 if batch_idx % 5 == 0:
                     wandb.log({"RNN_output_plot": wandb.Image("temp_plot.png")})
