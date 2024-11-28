@@ -66,6 +66,7 @@ def train(config=None):
 
         all_seqs = []
         total_iterations = 0
+        total_loss = []
 
         for epoch in range(config.num_epochs):
             epoch_losses = []
@@ -76,6 +77,7 @@ def train(config=None):
                 num_seq = sequences.shape[1]
                 batch_size = sequences.shape[0]
 
+                print(f"config {config}")
                 optimizer.zero_grad()
                 outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
                 print("outputs")
@@ -97,7 +99,7 @@ def train(config=None):
 
                 wandb.log({"batch_loss": loss.item()})
 
-                # plt.figure(figsize=(10, 6))
+                plt.figure(figsize=(10, 6))
                 # for i in range(sequences.shape[0]):
                 #     plt.plot(
                 #         seq[:, i].detach().cpu().numpy(),
@@ -106,18 +108,21 @@ def train(config=None):
                 #     )
                 # plt.legend()
 
-                # plt.title(
-                #     f"Epoch {epoch + 1}, Batch {batch_idx + 1}, Iteration {total_iterations}"
-                # )
-                # plt.ylabel("RNN output")
-                # plt.xlabel("Sequences")
-                # plt.savefig("temp_plot.png")
-                # plt.grid(True)
-                # plt.close()
-                # print(f"output for iteration {total_iterations}")
+                total_loss.append(loss.item())
+                plt.plot(list(range(total_iterations)), total_loss)
 
-                if batch_idx % 5 == 0:
-                    wandb.log({"RNN_output_plot": wandb.Image("temp_plot.png")})
+                plt.title(f"batch_loss")
+                plt.ylabel("Loss value")
+                plt.xlabel("Sequences")
+                plt.savefig(
+                    f"loss_{config.hidden_size}_{config.batch_size}_{config.learning_rate}_{config.num_layers}.png"
+                )
+                plt.grid(True)
+                plt.close()
+                print(f"output for iteration {total_iterations}")
+
+                # if batch_idx % 5 == 0:
+                #     wandb.log({"RNN_output_plot": wandb.Image("temp_plot.png")})
 
                 current_lr = optimizer.param_groups[0]["lr"]
                 wandb.log({"learning_rate": current_lr})
