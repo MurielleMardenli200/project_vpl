@@ -37,7 +37,9 @@ def freeze_layers_except_last(net: nn.Module, last_layer_name: str):
 class ResNetWithRNN(nn.Module):
     def __init__(self, hidden_size, output_size, num_layers=2):
         super(ResNetWithRNN, self).__init__()
-        resnet = torch.load("resnet50_pretrained.pth")
+        # resnet = resnet50(pretrained=True)
+        # torch.save(resnet, "resnet50_model.pth")
+        resnet = torch.load("resnet50_model.pth")
         self.feature_extractor = nn.Sequential(*list(resnet.children())[:-1])
         self.rnn = nn.RNN(
             input_size=2048,
