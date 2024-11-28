@@ -24,6 +24,7 @@ from database.coco_1 import generate_test_transforms, COCO_RNN
 def train(config):
     # with wandb.init(name=WANDB_RUN_NAME, config=config, mode="offline"):
     # config = wandb.config
+    print("training!")
 
     configs_tasks = TASK_CONFIG_1
     train_task_config = configs_tasks[0]
@@ -45,6 +46,7 @@ def train(config):
         num_workers=0,
         collate_fn=collate_fn,
     )
+    print("data loaded")
 
     model = ResNetWithRNN(
         hidden_size=config["hidden_size"],
@@ -66,7 +68,6 @@ def train(config):
 
     for epoch in range(config["num_epochs"]):
         epoch_losses = []
-        # print(f"Epoch {epoch + 1}/{num_epochs}")
         for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
             total_iterations += 1
             same_pair = same_pairs[1]
@@ -164,6 +165,7 @@ sweep_config = {
 }
 
 if __name__ == "__main__":
+    print("gonna training!")
     set_seed()
     # sweep_id = wandb.sweep(sweep_config, project="HyperparamSearch_compute")
     # wandb.agent(sweep_id, train)
