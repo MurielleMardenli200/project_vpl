@@ -26,7 +26,7 @@ os.environ["WANDB_ENTITY"] = "SNAIL-VPL"
 
 
 def train(config=None):
-    with wandb.init(name=WANDB_RUN_NAME, config=config):
+    with wandb.init(name=WANDB_RUN_NAME, config=config, mode="offline"):
         config = wandb.config
 
         configs_tasks = TASK_CONFIG_1
