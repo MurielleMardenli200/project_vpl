@@ -19,11 +19,6 @@ from torch.nn.utils.rnn import pad_sequence
 import wandb
 from database.coco_1 import generate_test_transforms, COCO_RNN
 
-# Wandb login
-
-os.environ["WANDB_API_KEY"] = "88ac16dc79bae11217c166cadfc8397f9bb473f9"
-os.environ["WANDB_ENTITY"] = "murielle-mardenli"
-
 
 def train(config=None):
     with wandb.init(name=WANDB_RUN_NAME, config=config):
