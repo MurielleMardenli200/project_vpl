@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --account=rrg-shahabkb
+#SBATCH --account=def-shahabkb
 #SBATCH --mem=60000
 #SBATCH -c 8
 #SBATCH --time=0-03:00           # time (DD-HH:MM)
