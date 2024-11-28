@@ -146,5 +146,5 @@ sweep_config = {
 
 if __name__ == "__main__":
     set_seed()
-    sweep_id = wandb.sweep(sweep_config, project="RNN-HyperparamSearch")
+    sweep_id = wandb.sweep(sweep_config, project="HyperparamSearch_compute")
     wandb.agent(sweep_id, train)
