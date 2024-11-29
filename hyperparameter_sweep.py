@@ -154,20 +154,20 @@ def train(config):
 # # }
 
 
-# def get_hyperparameter_combinations(sweep_config):
-#     keys, values = zip(*sweep_config.items())
-#     for combination in product(*(v["values"] for v in values)):
-#         yield dict(zip(keys, combination))
+def get_hyperparameter_combinations(sweep_config):
+    keys, values = zip(*sweep_config.items())
+    for combination in product(*(v["values"] for v in values)):
+        yield dict(zip(keys, combination))
 
 
-# sweep_config = {
-#     "hidden_size": {"values": [256, 512, 1024]},
-#     "batch_size": {"values": [5, 10, 20]},
-#     "learning_rate": {"values": [0.001, 0.005, 0.01]},
-#     "num_layers": {"values": [3, 4, 5]},
-#     "weight_decay": {"values": [1e-5]},
-#     "num_epochs": {"values": [3]},
-# }
+sweep_config = {
+    "hidden_size": {"values": [256, 512, 1024]},
+    "batch_size": {"values": [5, 10, 20]},
+    "learning_rate": {"values": [0.001, 0.005, 0.01]},
+    "num_layers": {"values": [3, 4, 5]},
+    "weight_decay": {"values": [1e-5]},
+    "num_epochs": {"values": [3]},
+}
 
 if __name__ == "__main__":
     print("gonna training!")
