@@ -9,6 +9,6 @@
 #SBATCH --output=output.log
 #SBATCH --error=error.log
 
-python example.py
+python hyperparameter_sweep.py
 
 

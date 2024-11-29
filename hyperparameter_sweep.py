@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import os
-import random
 from constants.task_type import TASK_CONFIG_1
 from constants.wandb_constants import WANDB_RUN_NAME
 from generate_base import ResNetWithRNN, collate_fn, set_seed
