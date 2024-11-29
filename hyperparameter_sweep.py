@@ -19,117 +19,124 @@ from database.coco_1 import generate_test_transforms, COCO_RNN
 # Wandb login
 
 
-# def train(config):
-#     # with wandb.init(name=WANDB_RUN_NAME, config=config, mode="offline"):
-#     # config = wandb.config
-#     print("training!")
+def train(config):
+    # with wandb.init(name=WANDB_RUN_NAME, config=config, mode="offline"):
+    # config = wandb.config
+    print("training!")
 
-#     configs_tasks = TASK_CONFIG_1
-#     train_task_config = configs_tasks[0]
-#     IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN = generate_test_transforms(train_task_config)
-#     train_dataset = COCO_RNN(
-#         "shared1000/",
-#         transforms=IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN,
-#         same_pair_probability=0.5,
-#         same_not_rand=True,
-#         idx_ref=4,
-#         idx_other=5,
-#         num_scrambled=3,
-#     )
-#     train_loader = DataLoader(
-#         train_dataset,
-#         batch_size=config["batch_size"],
-#         shuffle=True,
-#         drop_last=True,
-#         num_workers=0,
-#         collate_fn=collate_fn,
-#     )
-#     print("data loaded")
+    configs_tasks = TASK_CONFIG_1
+    train_task_config = configs_tasks[0]
+    IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN = generate_test_transforms(train_task_config)
+    print("aparture")
+    print(IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN)
+    train_dataset = COCO_RNN(
+        "shared1000/",
+        transforms=IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN,
+        same_pair_probability=0.5,
+        same_not_rand=True,
+        idx_ref=4,
+        idx_other=5,
+        num_scrambled=3,
+    )
+    print("rnn")
+    print(train_dataset)
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=config["batch_size"],
+        shuffle=True,
+        drop_last=True,
+        num_workers=0,
+        collate_fn=collate_fn,
+    )
+    print("data loaded")
 
-#     model = ResNetWithRNN(
-#         hidden_size=config["hidden_size"],
-#         output_size=1,
-#         num_layers=config["num_layers"],
-#     )
+    model = ResNetWithRNN(
+        hidden_size=config["hidden_size"],
+        output_size=1,
+        num_layers=config["num_layers"],
+    )
+    print("model resnet rnn")
 
-#     criterion = nn.BCEWithLogitsLoss()
-#     optimizer = torch.optim.SGD(
-#         model.parameters(),
-#         lr=config["learning_rate"],
-#         weight_decay=config["weight_decay"],
-#         momentum=0.9,
-#     )
+    criterion = nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.SGD(
+        model.parameters(),
+        lr=config["learning_rate"],
+        weight_decay=config["weight_decay"],
+        momentum=0.9,
+    )
 
-#     all_seqs = []
-#     total_iterations = 0
-#     total_loss = []
+    print("optimizer")
 
-#     for epoch in range(config["num_epochs"]):
-#         epoch_losses = []
-#         for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
-#             total_iterations += 1
-#             same_pair = same_pairs[1]
-#             num_seq = sequences.shape[1]
-#             batch_size = sequences.shape[0]
+    all_seqs = []
+    total_iterations = 0
+    total_loss = []
 
-#             print(f"config {config}")
-#             optimizer.zero_grad()
-#             outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
-#             print("outputs")
-#             print(outputs)
+    # for epoch in range(config["num_epochs"]):
+    #     epoch_losses = []
+    #     for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
+    #         total_iterations += 1
+    #         same_pair = same_pairs[1]
+    #         num_seq = sequences.shape[1]
+    #         batch_size = sequences.shape[0]
 
-#             outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
+    #         print(f"config {config}")
+    #         optimizer.zero_grad()
+    #         outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+    #         print("outputs")
+    #         print(outputs)
 
-#             loss = criterion(outputs_loss.squeeze(), same_pairs)
-#             loss.backward()
-#             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-#             optimizer.step()
+    #         outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
 
-#             epoch_losses.append(loss.item())
-#             all_seqs.append(outputs.detach().cpu())
+    #         loss = criterion(outputs_loss.squeeze(), same_pairs)
+    #         loss.backward()
+    #         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+    #         optimizer.step()
 
-#             torch_seq = torch.stack(all_seqs, dim=0)
-#             iteration = len(all_seqs) - 1
-#             seq = torch_seq[iteration].reshape(num_seq, batch_size, -1)
+    #         epoch_losses.append(loss.item())
+    #         all_seqs.append(outputs.detach().cpu())
 
-#             # wandb.log({"batch_loss": loss.item()})
+    #         torch_seq = torch.stack(all_seqs, dim=0)
+    #         iteration = len(all_seqs) - 1
+    #         seq = torch_seq[iteration].reshape(num_seq, batch_size, -1)
 
-#             plt.figure(figsize=(10, 6))
-#             # for i in range(sequences.shape[0]):
-#             #     plt.plot(
-#             #         seq[:, i].detach().cpu().numpy(),
-#             #         label=f"batch index {i}",
-#             #         marker="o",
-#             #     )
-#             # plt.legend()
+    #         # wandb.log({"batch_loss": loss.item()})
 
-#             total_loss.append(loss.item())
-#             plt.plot(list(range(total_iterations)), total_loss)
+    #         plt.figure(figsize=(10, 6))
+    #         # for i in range(sequences.shape[0]):
+    #         #     plt.plot(
+    #         #         seq[:, i].detach().cpu().numpy(),
+    #         #         label=f"batch index {i}",
+    #         #         marker="o",
+    #         #     )
+    #         # plt.legend()
 
-#             plt.title(f"batch_loss")
-#             plt.ylabel("Loss value")
-#             plt.xlabel("Sequences")
-#             hidden_size = config["hidden_size"]
-#             batch_s = config["batch_size"]
-#             learning_rate = config["learning_rate"]
-#             num_layers = config["num_layers"]
-#             plt.savefig(
-#                 f"loss_{hidden_size}_{batch_s}_{learning_rate}_{num_layers}.png"
-#             )
-#             plt.grid(True)
-#             plt.close()
-#             print(f"output for iteration {total_iterations}")
+    #         total_loss.append(loss.item())
+    #         plt.plot(list(range(total_iterations)), total_loss)
 
-#             # if batch_idx % 5 == 0:
-#             #     wandb.log({"RNN_output_plot": wandb.Image("temp_plot.png")})
+    #         plt.title(f"batch_loss")
+    #         plt.ylabel("Loss value")
+    #         plt.xlabel("Sequences")
+    #         hidden_size = config["hidden_size"]
+    #         batch_s = config["batch_size"]
+    #         learning_rate = config["learning_rate"]
+    #         num_layers = config["num_layers"]
+    #         plt.savefig(
+    #             f"loss_{hidden_size}_{batch_s}_{learning_rate}_{num_layers}.png"
+    #         )
+    #         plt.grid(True)
+    #         plt.close()
+    #         print(f"output for iteration {total_iterations}")
 
-#             current_lr = optimizer.param_groups[0]["lr"]
-#             # wandb.log({"learning_rate": current_lr})
+    #         # if batch_idx % 5 == 0:
+    #         #     wandb.log({"RNN_output_plot": wandb.Image("temp_plot.png")})
 
-#         epoch_loss = np.mean(epoch_losses)
-#         # wandb.log({"epoch_loss": epoch_loss})
-#     torch.save(model.state_dict(), "model.pth")
-#     # wandb.save("model.pth")
+    #         current_lr = optimizer.param_groups[0]["lr"]
+    #         # wandb.log({"learning_rate": current_lr})
+
+    #     epoch_loss = np.mean(epoch_losses)
+    #     # wandb.log({"epoch_loss": epoch_loss})
+    # torch.save(model.state_dict(), "model.pth")
+    # wandb.save("model.pth")
 
 
 # # sweep_config = {
@@ -168,5 +175,5 @@ if __name__ == "__main__":
     # sweep_id = wandb.sweep(sweep_config, project="HyperparamSearch_compute")
     # wandb.agent(sweep_id, train)
 
-    # for config in get_hyperparameter_combinations(sweep_config):
-    #     train(config)
+    for config in get_hyperparameter_combinations(sweep_config):
+        train(config)
