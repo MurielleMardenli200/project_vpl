@@ -170,5 +170,5 @@ if __name__ == "__main__":
     # sweep_id = wandb.sweep(sweep_config, project="HyperparamSearch_compute")
     # wandb.agent(sweep_id, train)
 
-    for config in get_hyperparameter_combinations(sweep_config):
-        train(config)
+    # for config in get_hyperparameter_combinations(sweep_config):
+    #     train(config)
