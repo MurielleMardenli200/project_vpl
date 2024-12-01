@@ -243,4 +243,4 @@ if __name__ == "__main__":
 
     print("resnet rnn")
 
-    train(model, config, train_loader)
+    # train(model, config, train_loader)
