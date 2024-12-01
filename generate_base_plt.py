@@ -243,4 +243,7 @@ if __name__ == "__main__":
 
     print("resnet rnn")
 
+    criterion = nn.BCEWithLogitsLoss()
+    print("criterion")
+
     # train(model, config, train_loader)
