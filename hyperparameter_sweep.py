@@ -74,15 +74,16 @@ def train(config):
     for epoch in range(config["num_epochs"]):
         epoch_losses = []
         for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
-            total_iterations += 1
-            same_pair = same_pairs[1]
-            num_seq = sequences.shape[1]
-            batch_size = sequences.shape[0]
+            print(f"batch id {batch_idx}")
+            # total_iterations += 1
+            # same_pair = same_pairs[1]
+            # num_seq = sequences.shape[1]
+            # batch_size = sequences.shape[0]
 
-            print(f"config {config}")
-            optimizer.zero_grad()
-            outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
-            print("after sqs")
+            # print(f"config {config}")
+            # optimizer.zero_grad()
+            # outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            # print("after sqs")
 
             # outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
 
@@ -139,9 +140,9 @@ def train(config):
             # current_lr = optimizer.param_groups[0]["lr"]
             # wandb.log({"learning_rate": current_lr})
 
-        epoch_loss = np.mean(epoch_losses)
+        # epoch_loss = np.mean(epoch_losses)
         # wandb.log({"epoch_loss": epoch_loss})
-    torch.save(model.state_dict(), "model.pth")
+    # torch.save(model.state_dict(), "model.pth")
     # wandb.save("model.pth")
 
 
