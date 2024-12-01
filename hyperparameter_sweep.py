@@ -82,18 +82,26 @@ def train(config):
             print(f"config {config}")
             optimizer.zero_grad()
             outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            print("after sqs")
 
             outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
 
             loss = criterion(outputs_loss.squeeze(), same_pairs)
+            print("criterion")
+
             loss.backward()
+            print("backward")
+
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
+            print("optimizer step")
 
             epoch_losses.append(loss.item())
             all_seqs.append(outputs.detach().cpu())
 
             torch_seq = torch.stack(all_seqs, dim=0)
+            print("stack")
+
             iteration = len(all_seqs) - 1
             seq = torch_seq[iteration].reshape(num_seq, batch_size, -1)
 
