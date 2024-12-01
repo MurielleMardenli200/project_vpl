@@ -87,12 +87,15 @@ def collate_fn(batch):
 def train(model, config: dict, train_loader):
 
     criterion = nn.BCEWithLogitsLoss()
+    print("criterion")
     optimizer = torch.optim.SGD(
         model.parameters(),
         lr=config["learning_rate"],
         weight_decay=config["weight_decay"],
         momentum=config["momentum"],
     )
+    print("optimizer")
+
     all_losses = []
     all_seqs = []
     all_same_pairs = []
@@ -113,7 +116,10 @@ def train(model, config: dict, train_loader):
             batch_size = sequences.shape[0]
 
             optimizer.zero_grad()
+            print("zero grad")
             outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            print("outputs seqs")
+
             # print("outputs")
             # print(outputs)
 
@@ -121,8 +127,12 @@ def train(model, config: dict, train_loader):
 
             loss = criterion(outputs_loss.squeeze(), same_pairs)
             loss.backward()
+            print("loss back")
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
+
+            print("optimizer step")
+
             epoch_losses.append(loss.item())
             print(f"  Batch {batch_idx + 1}, Loss: {loss.item():.4f}")
 
@@ -131,8 +141,9 @@ def train(model, config: dict, train_loader):
             all_same_pairs.append(same_pair)
 
             torch_seq = torch.stack(all_seqs, dim=0)
+            print("torch seq")
             iteration = len(all_seqs) - 1
-            seq = torch_seq[iteration].reshape(num_seq, batch_size, -1)
+            # seq = torch_seq[iteration].reshape(num_seq, batch_size, -1)
 
             # plt.figure(figsize=(10, 6))
             # for i in range(sequences.shape[0]):
@@ -203,7 +214,7 @@ if __name__ == "__main__":
     print("generate transforms")
     num_scramble = 3
     train_set = COCO_RNN(
-        "/Users/muriellemardenli/Desktop/mainn/ResearchProjects/SNAIL/shared1000/",
+        "shared1000/",
         transforms=IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN,
         same_pair_probability=0.5,
         same_not_rand=True,
@@ -222,6 +233,7 @@ if __name__ == "__main__":
         num_workers=0,
         collate_fn=collate_fn,
     )
+    print("data loader")
 
     model = ResNetWithRNN(
         hidden_size=config["hidden_size"],
@@ -229,4 +241,6 @@ if __name__ == "__main__":
         num_layers=config["num_layers"],
     )
 
-    # train(model, config, train_loader)
+    print("resnet rnn")
+
+    train(model, config, train_loader)
