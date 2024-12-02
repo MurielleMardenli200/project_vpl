@@ -254,4 +254,26 @@ if __name__ == "__main__":
     )
     print("optimizer")
 
+    all_losses = []
+    all_seqs = []
+    all_same_pairs = []
+
+    total_iterations = 0
+
+    for epoch in range(config["num_epochs"]):
+        epoch_losses = []
+        num_epochs = config["num_epochs"]
+        print(f"Epoch {epoch + 1}/{num_epochs}")
+
+        for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
+            # print(f"batch idx {batch_idx}")
+            # print(f"sequences {sequences}")
+            # print(f"same pairs {same_pairs}")
+            same_pair = same_pairs[1]
+            num_seq = sequences.shape[1]
+            batch_size = sequences.shape[0]
+
+            optimizer.zero_grad()
+            print("zero grad")
+
     # train(model, config, train_loader)
