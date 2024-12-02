@@ -274,6 +274,16 @@ if __name__ == "__main__":
             batch_size = sequences.shape[0]
 
             optimizer.zero_grad()
-            print("zero grad")
+            outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            print("outputs seqs")
+
+            # print("outputs")
+            # print(outputs)
+
+            outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
+
+            loss = criterion(outputs_loss.squeeze(), same_pairs)
+            loss.backward()
+            print("loss back")
 
     # train(model, config, train_loader)
