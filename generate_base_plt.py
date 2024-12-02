@@ -246,4 +246,12 @@ if __name__ == "__main__":
     criterion = nn.BCEWithLogitsLoss()
     print("criterion")
 
+    optimizer = torch.optim.SGD(
+        model.parameters(),
+        lr=config["learning_rate"],
+        weight_decay=config["weight_decay"],
+        momentum=config["momentum"],
+    )
+    print("optimizer")
+
     # train(model, config, train_loader)
