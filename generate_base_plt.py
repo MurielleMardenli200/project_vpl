@@ -280,25 +280,23 @@ if __name__ == "__main__":
             batch_size = sequences.shape[0]
 
             print(f"epoch {batch_idx}")
-            optimizer.zero_grad()
+            print("mode")
+            print(model)
+            # optimizer.zero_grad()
 
             # PROBLEM HERE
-            try:
-                outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
-            except Exception as e:
-                print(f"exception outs {e}")
+            # try:
+            #     outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            # except Exception as e:
+            #     print(f"exception outs {e}")
 
-            # print("outputs seqs")
+            # try:
+            #     outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
+            # except Exception as e:
+            #     print(f"exception {e}")
 
-            # print("outputs")
-            # print(outputs)
-            try:
-                outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
-            except Exception as e:
-                print(f"exception {e}")
-
-            loss = criterion(outputs_loss.squeeze(), same_pairs)
-            loss.backward()
-            print("loss back")
+            # loss = criterion(outputs_loss.squeeze(), same_pairs)
+            # loss.backward()
+            # print("loss back")
 
     # train(model, config, train_loader)
