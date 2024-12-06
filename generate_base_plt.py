@@ -186,6 +186,8 @@ def train(model, config: dict, train_loader):
 
 
 if __name__ == "__main__":
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("started")
     set_seed()
     config = {
@@ -243,7 +245,7 @@ if __name__ == "__main__":
         hidden_size=config["hidden_size"],
         output_size=config["output_size"],
         num_layers=config["num_layers"],
-    )
+    ).to(device)
 
     print("resnet rnn")
 
