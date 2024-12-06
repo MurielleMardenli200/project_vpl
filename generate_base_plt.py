@@ -39,6 +39,7 @@ class ResNetWithRNN(nn.Module):
         # resnet = resnet50(pretrained=True)
         # torch.save(resnet, "resnet50_model.pth")
         resnet = torch.load("resnet50_model.pth")
+        print("loaded")
         self.feature_extractor = nn.Sequential(*list(resnet.children())[:-1])
         print("feature extracted")
         self.rnn = nn.RNN(
@@ -273,7 +274,7 @@ if __name__ == "__main__":
 
             # PROBLEM HEREEE
             optimizer.zero_grad()
-            # outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
             print("outputs seqs")
 
     #         # print("outputs")
