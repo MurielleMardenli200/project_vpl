@@ -283,7 +283,10 @@ if __name__ == "__main__":
             optimizer.zero_grad()
 
             # PROBLEM HERE
-            outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            try:
+                outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            except Exception as e:
+                print(f"exception outs {e}")
 
             # print("outputs seqs")
 
