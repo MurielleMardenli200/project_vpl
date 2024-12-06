@@ -19,8 +19,8 @@ import argparse
 def set_seed(seed=42):
     random.seed(seed)
     torch.manual_seed(seed)
-    # torch.backends.cudnn.deterministic = True
-    # torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def freeze_layers_except_last(net: nn.Module, last_layer_name: str):
@@ -272,6 +272,10 @@ if __name__ == "__main__":
         print(f"Epoch {epoch + 1}/{num_epochs}")
 
         for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
+            print("sequences")
+            sequences = sequences.to(device)
+            # labels = [label.to(device) for label in labels]
+            # same_pairs = same_pairs.to(device)
             same_pair = same_pairs[1]
             num_seq = sequences.shape[1]
             batch_size = sequences.shape[0]
