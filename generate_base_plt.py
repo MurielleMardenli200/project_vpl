@@ -280,10 +280,11 @@ if __name__ == "__main__":
             num_seq = sequences.shape[1]
             batch_size = sequences.shape[0]
 
+            print(f"epoch {batch_idx}")
             # PROBLEM HEREEE
             optimizer.zero_grad()
             outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
-            print("outputs seqs")
+            # print("outputs seqs")
 
     #         # print("outputs")
     #         # print(outputs)
