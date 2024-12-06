@@ -13,6 +13,7 @@ from torch.nn.utils.rnn import pad_sequence
 from database.coco_1 import create_transform_aperature, generate_test_transforms
 from database.coco_1 import COCO_RNN
 from torchvision.models.resnet import resnet50
+import pdb
 import argparse
 
 
@@ -64,8 +65,6 @@ class ResNetWithRNN(nn.Module):
             features.append(feature)
         features = torch.stack(features, dim=0)
         rnn_out, _ = self.rnn(features)
-
-        # No relu?
 
         output = self.fc(self.relu(rnn_out.reshape(sequence_length * batch_size, -1)))
         return output, rnn_out
@@ -146,28 +145,28 @@ def train(model, config: dict, train_loader):
             torch_seq = torch.stack(all_seqs, dim=0)
             print("torch seq")
             iteration = len(all_seqs) - 1
-            # seq = torch_seq[iteration].reshape(num_seq, batch_size, -1)
+            seq = torch_seq[iteration].reshape(num_seq, batch_size, -1)
 
-            # plt.figure(figsize=(10, 6))
-            # for i in range(sequences.shape[0]):
-            #     plt.plot(
-            #         seq[:, i].detach().cpu().numpy(),
-            #         label=f"batch index {i}",
-            #         marker="o",
-            #     )
-            # plt.legend()
-            # plt.title(
-            #     f"Epoch {epoch + 1}, Batch {batch_idx + 1}, Iteration {total_iterations}"
-            # )
-            # plt.ylabel("RNN output")
-            # plt.xlabel("Sequences")
-            # plt.savefig("temp_plot.png")
-            # plt.grid(True)
-            # plt.close()
-            # print(f"output for iteration {total_iterations}")
+            plt.figure(figsize=(10, 6))
+            for i in range(sequences.shape[0]):
+                plt.plot(
+                    seq[:, i].detach().cpu().numpy(),
+                    label=f"batch index {i}",
+                    marker="o",
+                )
+            plt.legend()
+            plt.title(
+                f"Epoch {epoch + 1}, Batch {batch_idx + 1}, Iteration {total_iterations}"
+            )
+            plt.ylabel("RNN output")
+            plt.xlabel("Sequences")
+            plt.savefig("temp_plot.png")
+            plt.grid(True)
+            plt.close()
+            print(f"output for iteration {total_iterations}")
 
-            # if batch_idx % 5 == 0:
-            #     wandb.log({"RNN_output_plot": wandb.Image("temp_plot.png")})
+            if batch_idx % 5 == 0:
+                wandb.log({"RNN_output_plot": wandb.Image("temp_plot.png")})
 
             total_iterations += 1
 
@@ -281,18 +280,22 @@ if __name__ == "__main__":
             batch_size = sequences.shape[0]
 
             print(f"epoch {batch_idx}")
-            # PROBLEM HEREEE
             optimizer.zero_grad()
+
+            # PROBLEM HERE
             outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+
             # print("outputs seqs")
 
-    #         # print("outputs")
-    #         # print(outputs)
+            # print("outputs")
+            # print(outputs)
+            try:
+                outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
+            except Exception as e:
+                print(f"exception {e}")
 
-    #         outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
-
-    #         loss = criterion(outputs_loss.squeeze(), same_pairs)
-    #         loss.backward()
-    #         print("loss back")
+            loss = criterion(outputs_loss.squeeze(), same_pairs)
+            loss.backward()
+            print("loss back")
 
     # train(model, config, train_loader)
