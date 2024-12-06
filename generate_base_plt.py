@@ -260,30 +260,30 @@ if __name__ == "__main__":
 
     total_iterations = 0
 
-    for epoch in range(config["num_epochs"]):
-        epoch_losses = []
-        num_epochs = config["num_epochs"]
-        print(f"Epoch {epoch + 1}/{num_epochs}")
+    # for epoch in range(config["num_epochs"]):
+    #     epoch_losses = []
+    #     num_epochs = config["num_epochs"]
+    #     print(f"Epoch {epoch + 1}/{num_epochs}")
 
-        for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
-            # print(f"batch idx {batch_idx}")
-            # print(f"sequences {sequences}")
-            # print(f"same pairs {same_pairs}")
-            same_pair = same_pairs[1]
-            num_seq = sequences.shape[1]
-            batch_size = sequences.shape[0]
+    #     for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
+    #         # print(f"batch idx {batch_idx}")
+    #         # print(f"sequences {sequences}")
+    #         # print(f"same pairs {same_pairs}")
+    #         same_pair = same_pairs[1]
+    #         num_seq = sequences.shape[1]
+    #         batch_size = sequences.shape[0]
 
-            optimizer.zero_grad()
-            outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
-            print("outputs seqs")
+    #         optimizer.zero_grad()
+    #         outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+    #         print("outputs seqs")
 
-            # print("outputs")
-            # print(outputs)
+    #         # print("outputs")
+    #         # print(outputs)
 
-            outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
+    #         outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
 
-            loss = criterion(outputs_loss.squeeze(), same_pairs)
-            loss.backward()
-            print("loss back")
+    #         loss = criterion(outputs_loss.squeeze(), same_pairs)
+    #         loss.backward()
+    #         print("loss back")
 
     # train(model, config, train_loader)
