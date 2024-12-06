@@ -19,8 +19,8 @@ import argparse
 def set_seed(seed=42):
     random.seed(seed)
     torch.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+    # torch.backends.cudnn.deterministic = True
+    # torch.backends.cudnn.benchmark = False
 
 
 def freeze_layers_except_last(net: nn.Module, last_layer_name: str):
@@ -117,8 +117,10 @@ def train(model, config: dict, train_loader):
             batch_size = sequences.shape[0]
 
             optimizer.zero_grad()
-            print("zero grad")
-            outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            print("model")
+            print(type(model))
+            print(model)
+            # outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
             print("outputs seqs")
 
             # print("outputs")
