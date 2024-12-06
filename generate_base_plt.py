@@ -214,7 +214,7 @@ if __name__ == "__main__":
     print("generate transforms")
     num_scramble = 3
     train_set = COCO_RNN(
-        "shared1000/",
+        "/Users/muriellemardenli/Desktop/mainn/ResearchProjects/SNAIL/shared1000/",
         transforms=IMAGENET_TRANSFORM_NOISE_APRATUR_TRAIN,
         same_pair_probability=0.5,
         same_not_rand=True,
@@ -266,13 +266,14 @@ if __name__ == "__main__":
         print(f"Epoch {epoch + 1}/{num_epochs}")
 
         for batch_idx, (sequences, labels, same_pairs) in enumerate(train_loader):
-            print(f"batch idx {batch_idx}")
-            print(f"sequences {sequences}")
-            print(f"same pairs {same_pairs}")
+            # print(f"batch idx {batch_idx}")
+            # print(f"sequences {sequences}")
+            # print(f"same pairs {same_pairs}")
             same_pair = same_pairs[1]
             num_seq = sequences.shape[1]
             batch_size = sequences.shape[0]
 
+            # PROBLEM HEREEE
             optimizer.zero_grad()
             outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
             print("outputs seqs")
