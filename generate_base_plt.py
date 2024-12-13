@@ -285,18 +285,23 @@ if __name__ == "__main__":
             # optimizer.zero_grad()
 
             # PROBLEM HERE
-            # try:
-            #     outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
-            # except Exception as e:
-            #     print(f"exception outs {e}")
+            import pdb
 
-            # try:
-            #     outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
-            # except Exception as e:
-            #     print(f"exception {e}")
+            pdb.set_trace()
+            try:
+                outputs, seqs = model(sequences.permute(1, 0, 2, 3, 4))
+            except Exception as e:
+                print(f"exception outs {e}")
 
-            # loss = criterion(outputs_loss.squeeze(), same_pairs)
-            # loss.backward()
-            # print("loss back")
+            try:
+                outputs_loss = outputs.reshape(num_seq, batch_size, -1)[-1]
+            except Exception as e:
+                print(f"exception {e}")
+
+            loss = criterion(outputs_loss.squeeze(), same_pairs)
+            loss.backward()
+            print("loss back")
+
+            break
 
     # train(model, config, train_loader)
