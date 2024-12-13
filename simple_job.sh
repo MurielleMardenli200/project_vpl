@@ -8,5 +8,8 @@
 
 #SBATCH --output=output.log
 #SBATCH --error=error.log
+module load StdEnv/2020
+
+module load python/3.11
 
 python generate_base_plt.py
